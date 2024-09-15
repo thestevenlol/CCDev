@@ -4,6 +4,20 @@
 #include <stdio.h>
 #include <string.h>
 
+
+/* 
+
+How do run?
+
+Compile the program using the following command:
+gcc main.c -o main
+
+Then run the output in terminal:
+./main
+
+ */
+
+
 /* 
 
 Function used to get the integer value of a single roman numeral.
@@ -48,7 +62,7 @@ int romanToInt(const char* s) {
     
     for (int i = 0; i < length; i++) {
         int current = romanCharToInt(s[i]);
-        int next = (i + 1 < length) ? romanCharToInt(s[i + 1]) : 0;
+        int next = (i + 1 < length) ? romanCharToInt(s[i + 1]) : 0; // if next is out of bounds, set to 0
         
         if (current < next) {
             result -= current;
