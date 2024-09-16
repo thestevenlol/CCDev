@@ -2,6 +2,7 @@
 // 13/09/2024
 
 #include <stdio.h>
+#include <stdlib.h>
 #include <string.h>
 
 
@@ -75,18 +76,25 @@ int romanToInt(const char* s) {
 }
 
 int main() {
-    const char* roman = "abc";
 
+    // Get user input, store in char array
+    printf("Enter your Roman Numeral string: ");
+    char* roman = malloc(15);
+    scanf("%s", roman);
+
+    // Validate that the str is not empty
     if (strlen(roman) == 0) {
         printf("No roman numeral provided\n");
         return 1;
     }
 
+    // Validate that the size is less than 15 characters
     if (strlen(roman) > 15) {
         printf("Roman numeral is too long\n");
         return 1;
     }
 
+    // Validate that the string has all valid roman numeral characters
     for (int i = 0; i < strlen(roman); i++) {
         if (romanCharToInt(roman[i]) == 0) {
             printf("Invalid roman numeral character: %c\n", roman[i]);
@@ -95,5 +103,8 @@ int main() {
     }
 
     printf("The integer value of %s is %d\n", roman, romanToInt(roman));
+
+    // Free the allocated memory and exit
+    free(roman);
     return 0;
 }
