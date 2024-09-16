@@ -75,7 +75,25 @@ int romanToInt(const char* s) {
 }
 
 int main() {
-    const char* roman = "MMXXIV";
+    const char* roman = "abc";
+
+    if (strlen(roman) == 0) {
+        printf("No roman numeral provided\n");
+        return 1;
+    }
+
+    if (strlen(roman) > 15) {
+        printf("Roman numeral is too long\n");
+        return 1;
+    }
+
+    for (int i = 0; i < strlen(roman); i++) {
+        if (romanCharToInt(roman[i]) == 0) {
+            printf("Invalid roman numeral character: %c\n", roman[i]);
+            return 1;
+        }
+    }
+
     printf("The integer value of %s is %d\n", roman, romanToInt(roman));
     return 0;
 }
