@@ -25,57 +25,45 @@
 package main
 
 import (
-	"context"
 	"fmt"
-	"golang.org/x/sync/semaphore"
 	"sync"
 	"time"
 )
 
 // Place a barrier in this function --use Mutex's and Semaphores
-func doStuff(goNum int, wg *sync.WaitGroup, mu *sync.Mutex, count *int, barrierSem *semaphore.Weighted, totalRoutines int, ctx context.Context) bool {
+func doStuff(goNum int, arrived *int, max int, wg *sync.WaitGroup, sharedLock *sync.Mutex, theChan chan bool) bool {
 	time.Sleep(time.Second)
 	fmt.Println("Part A", goNum)
-
-	// Barrier implementation
-	mu.Lock()
-	*count++
-	if *count == totalRoutines {
-		// All goroutines have reached the barrier; release them
-		barrierSem.Release(1)
-		mu.Unlock()
-		err := barrierSem.Acquire(ctx, 1)
-		if err != nil {
-			return false
-		}
+	//we wait here until everyone has completed part A
+	sharedLock.Lock()
+	*arrived++
+	if *arrived == max {
+		sharedLock.Unlock()
+		theChan <- true
+		<-theChan
 	} else {
-		mu.Unlock()
-		// Wait for other goroutines to reach the barrier
-		err := barrierSem.Acquire(ctx, 1)
-		if err != nil {
-			return false
-		}
-		barrierSem.Release(1)
+		sharedLock.Unlock()
+		<-theChan
+		theChan <- true
 	}
-
-	fmt.Println("Part B", goNum)
+	sharedLock.Lock()
+	*arrived--
+	sharedLock.Unlock()
+	fmt.Println("PartB", goNum)
 	wg.Done()
 	return true
-}
+} //end-doStuff
 
 func main() {
 	totalRoutines := 10
+	arrived := 0
 	var wg sync.WaitGroup
-	ctx := context.TODO()
 	wg.Add(totalRoutines)
-	var mu sync.Mutex
-	var count int = 0
-	// Initialize a semaphore with zero initial permits
-	barrierSem := semaphore.NewWeighted(0)
-
-	for i := 0; i < totalRoutines; i++ {
-		go doStuff(i, &wg, &mu, &count, barrierSem, totalRoutines, ctx)
+	//we will need some of these
+	var theLock sync.Mutex
+	theChan := make(chan bool)     //use unbuffered channel in place of semaphore
+	for i := range totalRoutines { //create the go Routines here
+		go doStuff(i, &arrived, totalRoutines, &wg, &theLock, theChan)
 	}
-
-	wg.Wait() // Wait for all goroutines to finish
+	wg.Wait() //wait for everyone to finish before exiting
 }
