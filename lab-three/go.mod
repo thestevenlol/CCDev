@@ -1,4 +1,4 @@
-module labs/lab3
+module labs/three
 
 go 1.23.1
 
